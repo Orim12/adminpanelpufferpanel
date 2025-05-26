@@ -1,0 +1,12 @@
+{
+    "name": "adminpanel",
+    "scripts": {
+        "dev": "concurrently -n frontend,backend \"npm frontend\" \"npm backend\"",
+        "frontend": "npm --cwd frontend dev",
+        "backend": "npm --cwd backend dev"
+    },
+    "dependencies": {
+        "concurrently": "^7.6.0",
+        "express": "^4.21.0"
+    }
+}
