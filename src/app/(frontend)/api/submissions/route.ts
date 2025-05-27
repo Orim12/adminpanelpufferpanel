@@ -26,35 +26,35 @@ export async function POST(req: NextRequest) {
   const file = formData.get('file') as File | null
 
   if (file && file.size > 0) {
-    // Upload alles in één keer naar submissions (inclusief bestand)
-    const uploadForm = new FormData()
-    uploadForm.append('name', name)
-    if (link) uploadForm.append('link', link)
-    uploadForm.append('user', user)
-    let altValue = 'upload'
-    if (typeof name === 'string' && name.trim().length > 0) {
-      altValue = name.trim()
-    }
-    uploadForm.append('alt', altValue)
-    uploadForm.append('file', file)
-    const cookie = req.headers.get('cookie') || ''
-    let baseUrl = process.env.PAYLOAD_PUBLIC_URL || 'https://submit.mirovaassen.nl'
-    if (!/^https?:\/\//i.test(baseUrl)) {
-      baseUrl = 'https://' + baseUrl.replace(/^\/*/, '')
-    }
-    // Direct alles naar submissions endpoint sturen
-    const uploadRes = await fetch(`${baseUrl}/api/submissions`, {
-      method: 'POST',
-      body: uploadForm,
-      headers: { Cookie: cookie },
+    // Zet file om naar een geschikt object voor Payload (Node.js File API is niet gelijk aan Payload's verwachte file object)
+    // Gebruik een Buffer en geef mimetype, name en size expliciet mee
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    // Payload verwacht: { data, mimetype, name, size }
+    const mediaDoc = await payload.create({
+      collection: 'media',
+      data: {
+        alt: name || 'upload',
+      },
+      file: {
+        data: buffer,
+        mimetype: file.type || 'application/java-archive',
+        name: file.name,
+        size: file.size,
+      },
     })
-    if (!uploadRes.ok) {
-      const err = await uploadRes.text()
-      return new Response('Uploaden van bestand mislukt: ' + err, { status: 400 })
-    }
-    // Geef direct de response van de backend terug
-    const uploadData = await uploadRes.json()
-    return Response.json(uploadData)
+    // Daarna submission aanmaken met media id
+    const submission = await payload.create({
+      collection: 'submissions',
+      data: {
+        name,
+        link,
+        user,
+        file: mediaDoc.id,
+        status: 'pending',
+      },
+    })
+    return Response.json(submission)
   }
 
   const submission = await payload.create({
