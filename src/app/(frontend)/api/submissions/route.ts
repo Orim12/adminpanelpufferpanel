@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   const name = formData.get('name') as string
   const link = formData.get('link') as string | undefined
   const user = formData.get('user') as string
-  let fileId: string | undefined = undefined
+  let fileId: string | undefined = undefined // eslint-disable-line prefer-const
   const file = formData.get('file') as File | null
 
   if (file && file.size > 0) {

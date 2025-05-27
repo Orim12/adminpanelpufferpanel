@@ -2,8 +2,7 @@ import type { CollectionConfig } from 'payload'
 import path from 'path'
 import fs from 'fs/promises'
 
-// @ts-ignore
-const notifyPufferPanel = async ({ doc, previousDoc, req }: any) => {
+const notifyPufferPanel = async ({ doc, previousDoc, req }: { doc: any, previousDoc: any, req: any }) => {
   if (doc.status === 'approved' && previousDoc?.status !== 'approved') {
     try {
       let fileUrl = null
@@ -104,7 +103,8 @@ export const Submissions: CollectionConfig = {
       required: true,
       // Uniekheid afdwingen op bestandsnaam
       hooks: {
-        beforeChange: [async ({ value, req }) => {
+        beforeChange: [async (args) => {
+          const { value, req } = args;
           if (!value) return value;
           // Haal de bestandsnaam op uit media collectie
           const payload = req.payload;
