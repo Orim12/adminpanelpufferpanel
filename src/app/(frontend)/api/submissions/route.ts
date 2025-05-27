@@ -65,7 +65,8 @@ export async function POST(req: NextRequest) {
       name,
       link,
       user,
-      file: fileId,
+      // fileId kan een string of een object zijn afhankelijk van uploadData
+      file: fileId || null,
       status: 'pending',
     },
   })
