@@ -13,7 +13,8 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation PORT=5054 next start",
-    "start:sftp": "node ./src/sftp/server.cjs",
+    "start:sftp": "node ./sftp/server.cjs",
+    "start:all": "concurrently \"yarn start\" \"yarn start:sftp\"",
     "dev:all": "concurrently \"yarn dev\" \"yarn start:sftp\""
   },
   "dependencies": {

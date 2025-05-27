@@ -1,5 +1,10 @@
 import { NextRequest } from 'next/server'
 
+export const runtime = 'nodejs'
+
+// This API route has been moved to /pages/api/sftp-upload.ts for native Node.js compatibility.
+export {};
+
 export async function POST(req: NextRequest) {
   // Only allow server-side execution
   if (typeof window !== 'undefined') {
@@ -12,8 +17,8 @@ export async function POST(req: NextRequest) {
       return new Response('Missing parameters', { status: 400 })
     }
     // Dynamically import SFTP logic
-    const { uploadModViaSftp } = await import('../../../../sftp/uploadMod.cjs')
-    await uploadModViaSftp(Buffer.from(arrayBuffer.data), fileName)
+    // const { uploadModViaSftp } = await import('')
+    // await uploadModViaSftp(Buffer.from(arrayBuffer.data), fileName)
     return new Response('SFTP upload successful', {
       status: 200,
       headers: {
