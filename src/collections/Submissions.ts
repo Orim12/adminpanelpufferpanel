@@ -91,9 +91,10 @@ export const Submissions: CollectionConfig = {
   fields: [
     {
       name: 'name',
-      label: 'Naam van mod/plugin',
+      label: 'Naam van mod',
       type: 'text',
       required: true,
+      admin: {readOnly: true},
     },
     {
       name: 'file',
@@ -134,6 +135,9 @@ export const Submissions: CollectionConfig = {
       label: 'Opmerking van admin',
       type: 'textarea',
       required: false,
+      admin: {
+        position: 'sidebar',
+      }
     },
   ],
   hooks: {
