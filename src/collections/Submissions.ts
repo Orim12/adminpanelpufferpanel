@@ -125,13 +125,15 @@ export const Submissions: CollectionConfig = {
       ],
       defaultValue: 'pending',
       required: true,
+      admin: {
+        position: 'sidebar',
+      }
     },
     {
       name: 'adminComment',
       label: 'Opmerking van admin',
       type: 'textarea',
       required: false,
-      admin: { readOnly: true },
     },
   ],
   hooks: {
