@@ -12,7 +12,12 @@ const notifyPufferPanel = async ({ doc, previousDoc, req }: any) => {
         fileUrl = doc.file.url
         if (doc.file.filename) fileName = doc.file.filename
       } else if (doc.file && typeof doc.file === 'string') {
-        const mediaRes = await (globalThis.fetch || (await import('node-fetch')).default)(`${process.env.PAYLOAD_PUBLIC_URL || 'http://localhost:3000'}/api/media/${doc.file}`)
+        // Zorg dat de URL altijd met http(s):// begint
+        let base = process.env.PAYLOAD_PUBLIC_URL || 'http://localhost:3000'
+        if (!/^https?:\/\//i.test(base)) {
+          base = 'https://' + base.replace(/^\/*/, '')
+        }
+        const mediaRes = await (globalThis.fetch || (await import('node-fetch')).default)(`${base.replace(/\/$/, '')}/api/media/${doc.file}`)
         const media = await mediaRes.json()
         fileUrl = media.url
         if (media.filename) fileName = media.filename

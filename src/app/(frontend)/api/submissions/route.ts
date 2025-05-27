@@ -74,3 +74,10 @@ export async function POST(req: NextRequest) {
   })
   return Response.json(submission)
 }
+
+export const config = {
+  api: {
+    bodyParser: false, // Nodig voor FormData/file uploads
+    sizeLimit: '500mb',
+  },
+}
