@@ -52,7 +52,7 @@ const SubmissionForm: React.FC<Props> = ({ userId }) => {
       />
       <input
         type="file"
-        accept=".jar"
+        accept=".jar, .zip"
         ref={fileInput}
         onChange={e => setFile(e.target.files ? e.target.files[0] : null)}
       />
