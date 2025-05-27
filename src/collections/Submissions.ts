@@ -102,6 +102,30 @@ export const Submissions: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
       required: false,
+      // Uniekheid afdwingen op bestandsnaam
+      hooks: {
+        beforeChange: [async ({ value, req }) => {
+          if (!value) return value;
+          // Haal de bestandsnaam op uit media collectie
+          const payload = req.payload;
+          const mediaDoc = await payload.findByID({
+            collection: 'media',
+            id: value,
+          });
+          if (!mediaDoc?.filename) return value;
+          // Zoek naar andere media met dezelfde bestandsnaam
+          const existing = await payload.find({
+            collection: 'media',
+            where: { filename: { equals: mediaDoc.filename } },
+            limit: 2,
+          });
+          // Als er meer dan 1 (dus een andere) is, blokkeer
+          if (existing.docs.length > 1) {
+            throw new Error('Er bestaat al een .jar bestand met deze naam. Kies een unieke bestandsnaam.');
+          }
+          return value;
+        }],
+      },
     },
     {
       name: 'link',
