@@ -44,10 +44,10 @@ export async function POST(req: NextRequest) {
     } else {
       baseUrl = 'http://localhost:3000'
     }
-    const uploadRes = await fetch(`${baseUrl}/api/media`, {
+    const uploadRes = await fetch('/api/media', {
       method: 'POST',
       body: uploadForm,
-      headers: { Cookie: cookie },
+      // Cookie wordt automatisch meegegeven door de browser
     })
     if (!uploadRes.ok) {
       const err = await uploadRes.text()
