@@ -54,7 +54,12 @@ export async function POST(req: NextRequest) {
       return new Response('Uploaden van bestand mislukt: ' + err, { status: 400 })
     }
     const uploadData = await uploadRes.json()
-    fileId = uploadData?.id
+    // Alleen een geldige 24-char hex string doorgeven
+    if (uploadData?.id && typeof uploadData.id === 'string' && /^[a-fA-F0-9]{24}$/.test(uploadData.id)) {
+      fileId = uploadData.id
+    } else {
+      fileId = undefined
+    }
   }
 
   const submission = await payload.create({
