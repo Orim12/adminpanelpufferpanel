@@ -14,8 +14,20 @@ export async function POST(req: NextRequest) {
     // Dynamically import SFTP logic
     const { uploadModViaSftp } = await import('../../../../sftp/uploadMod.cjs')
     await uploadModViaSftp(Buffer.from(arrayBuffer.data), fileName)
-    return new Response('SFTP upload successful', { status: 200 })
+    return new Response('SFTP upload successful', {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://submit.mirovaassen.nl',
+        'Vary': 'Origin',
+      },
+    })
   } catch (e: any) {
-    return new Response(`SFTP upload failed: ${e.message || e}`, { status: 500 })
+    return new Response(`SFTP upload failed: ${e.message || e}`, {
+      status: 500,
+      headers: {
+        'Access-Control-Allow-Origin': 'https://submit.mirovaassen.nl',
+        'Vary': 'Origin',
+      },
+    })
   }
 }
