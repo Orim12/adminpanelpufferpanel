@@ -98,10 +98,10 @@ export const Submissions: CollectionConfig = {
     },
     {
       name: 'file',
-      label: '.jar bestand',
+      label: '.jar of .zip bestand',
       type: 'upload',
       relationTo: 'media',
-      required: false,
+      required: true,
       // Uniekheid afdwingen op bestandsnaam
       hooks: {
         beforeChange: [async ({ value, req }) => {
@@ -131,7 +131,7 @@ export const Submissions: CollectionConfig = {
       name: 'link',
       label: 'GitHub/Modrinth/CurseForge link',
       type: 'text',
-      required: false,
+      required: true,
     },
     {
       name: 'user',

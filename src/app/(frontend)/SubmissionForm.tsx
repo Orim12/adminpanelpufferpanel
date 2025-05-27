@@ -39,14 +39,14 @@ const SubmissionForm: React.FC<Props> = ({ userId }) => {
       <h2>Stuur een mod of meerdere mods in</h2>
       <input
         type="text"
-        placeholder="Naam van mod/plugin"
+        placeholder="Naam van mod/modpack (vereist)"
         value={name}
         onChange={e => setName(e.target.value)}
         required
       />
       <input
         type="text"
-        placeholder="GitHub/Modrinth/CurseForge link (optioneel)"
+        placeholder="GitHub/Modrinth/CurseForge link (required)"
         value={link}
         onChange={e => setLink(e.target.value)}
       />

@@ -38,13 +38,13 @@ export default function HomePage() {
         {!user && <>
           <h1 className="main-title" style={{marginBottom: 0}}>Minecraft Mod Upload Portal</h1>
           <p className="subtitle" style={{marginTop: 8, marginBottom: 24}}>
-            Upload eenvoudig je eigen mods of plugins voor review en installatie op de server.<br />
+            Upload eenvoudig je eigen mods voor review en installatie op de server.<br />
             Maak een account aan of log in om te beginnen.
           </p>
         </>}
         {user && <>
           <h1 className="main-title">Welkom terug, {user.email}</h1>
-          <p className="subtitle">Stuur hieronder je mod of plugin in, of bekijk de status van je inzendingen.</p>
+          <p className="subtitle">Stuur hieronder je mod of modpack in, of bekijk de status van je inzendingen.</p>
         </>}
         <div className="links enhanced-links" style={{marginBottom: user ? 32 : 40}}>
           <a
