@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       return new Response('Missing parameters', { status: 400 })
     }
     // Dynamically import SFTP logic
-    const { uploadModViaSftp } = await import('@/sftp/uploadMod')
+    const { uploadModViaSftp } = await import('../../../../sftp/uploadMod.cjs')
     await uploadModViaSftp(Buffer.from(arrayBuffer.data), fileName)
     return new Response('SFTP upload successful', { status: 200 })
   } catch (e: any) {
