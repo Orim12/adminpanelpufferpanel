@@ -2,7 +2,7 @@
 import React, { useState, useRef, FormEvent } from 'react'
 
 
-const url = process.env.NEXT_PUBLIC_API_URL
+const url = "https://submit.mirovaassen.nl/"
 interface Props {
   userId: string
 }
