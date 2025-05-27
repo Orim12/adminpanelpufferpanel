@@ -1,4 +1,4 @@
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') })
+require('dotenv').config({ path: require('path').resolve(__dirname, './.env') })
 
 async function uploadModViaSftp(arrayBuffer, fileName) {
   const SftpClient = require('ssh2-sftp-client')
