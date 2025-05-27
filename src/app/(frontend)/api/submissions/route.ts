@@ -26,22 +26,24 @@ export async function POST(req: NextRequest) {
   const file = formData.get('file') as File | null
 
   if (file && file.size > 0) {
-    // Upload bestand via Payload REST API endpoint
+    // Upload alles in één keer naar submissions (inclusief bestand)
     const uploadForm = new FormData()
+    uploadForm.append('name', name)
+    if (link) uploadForm.append('link', link)
+    uploadForm.append('user', user)
     let altValue = 'upload'
     if (typeof name === 'string' && name.trim().length > 0) {
       altValue = name.trim()
     }
     uploadForm.append('alt', altValue)
     uploadForm.append('file', file)
-    // Auth cookie doorgeven
     const cookie = req.headers.get('cookie') || ''
-    // Base URL bepalen uit headers
     let baseUrl = process.env.PAYLOAD_PUBLIC_URL || 'https://submit.mirovaassen.nl'
     if (!/^https?:\/\//i.test(baseUrl)) {
       baseUrl = 'https://' + baseUrl.replace(/^\/*/, '')
     }
-    const uploadRes = await fetch(`${baseUrl}/api/media`, {
+    // Direct alles naar submissions endpoint sturen
+    const uploadRes = await fetch(`${baseUrl}/api/submissions`, {
       method: 'POST',
       body: uploadForm,
       headers: { Cookie: cookie },
@@ -50,13 +52,9 @@ export async function POST(req: NextRequest) {
       const err = await uploadRes.text()
       return new Response('Uploaden van bestand mislukt: ' + err, { status: 400 })
     }
+    // Geef direct de response van de backend terug
     const uploadData = await uploadRes.json()
-    // Alleen een geldige 24-char hex string doorgeven
-    if (uploadData?.id && typeof uploadData.id === 'string' && /^[a-fA-F0-9]{24}$/.test(uploadData.id)) {
-      fileId = uploadData.id
-    } else {
-      fileId = undefined
-    }
+    return Response.json(uploadData)
   }
 
   const submission = await payload.create({
