@@ -37,17 +37,14 @@ export async function POST(req: NextRequest) {
     // Auth cookie doorgeven
     const cookie = req.headers.get('cookie') || ''
     // Base URL bepalen uit headers
-    let baseUrl = ''
-    const host = req.headers.get('host')
-    if (host) {
-      baseUrl = `http://${host}`
-    } else {
-      baseUrl = 'http://localhost:3000'
+    let baseUrl = process.env.PAYLOAD_PUBLIC_URL || 'https://submit.mirovaassen.nl'
+    if (!/^https?:\/\//i.test(baseUrl)) {
+      baseUrl = 'https://' + baseUrl.replace(/^\/*/, '')
     }
-    const uploadRes = await fetch('/api/media', {
+    const uploadRes = await fetch(`${baseUrl}/api/media`, {
       method: 'POST',
       body: uploadForm,
-      // Cookie wordt automatisch meegegeven door de browser
+      headers: { Cookie: cookie },
     })
     if (!uploadRes.ok) {
       const err = await uploadRes.text()
