@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   const payload = await getPayload({ config })
   const formData = await req.formData()
   const name = formData.get('name') as string
-  const link = formData.get('link') as string | undefined
+  const link = formData.get('link') as string | null
   const user = formData.get('user') as string
   let fileId: string | undefined = undefined // eslint-disable-line prefer-const
   const file = formData.get('file') as File | null
