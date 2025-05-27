@@ -36,7 +36,7 @@ const SubmissionForm: React.FC<Props> = ({ userId }) => {
 
   return (
     <form className="submission-form" onSubmit={handleSubmit}>
-      <h2>Stuur een mod/plugin in</h2>
+      <h2>Stuur een mod of meerdere mods in</h2>
       <input
         type="text"
         placeholder="Naam van mod/plugin"
