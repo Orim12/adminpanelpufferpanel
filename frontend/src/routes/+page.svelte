@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	let user: string | null = null;
+	let role: string | null = null;
 	onMount(() => {
 		user = localStorage.getItem('user');
+		role = localStorage.getItem('role');
 	});
 	function logout() {
 		localStorage.removeItem('user');
+		localStorage.removeItem('role');
 		window.location.reload();
 	}
 </script>
@@ -16,7 +19,7 @@
 		<p>Welcome, <b>{user}</b>! <button on:click={logout}>Logout</button></p>
 		<nav>
 			<a href="/submit">Submit Plugin/Mod</a>
-			{#if user === 'admin'}
+			{#if role === 'admin'}
 				<a href="/admin">Admin Review</a>
 			{/if}
 		</nav>

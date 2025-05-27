@@ -4,8 +4,8 @@
 	let isAdmin = false;
 
 	onMount(() => {
-		// Demo: check if user is admin
-		isAdmin = localStorage.getItem('user') === 'admin';
+		// Check if user is admin by role
+		isAdmin = localStorage.getItem('role') === 'admin';
 		// Demo: load submissions from localStorage
 		const data = localStorage.getItem('submissions');
 		if (data) {
