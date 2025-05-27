@@ -12,7 +12,9 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "start:sftp": "node ./src/sftp/server.cjs",
+    "dev:all": "concurrently \"yarn dev\" \"yarn start:sftp\""
   },
   "dependencies": {
     "@payloadcms/db-mongodb": "3.39.1",
@@ -21,7 +23,9 @@
     "@payloadcms/richtext-lexical": "3.39.1",
     "@payloadcms/ui": "3.39.1",
     "@types/node-fetch": "^2.6.12",
+    "cors": "^2.8.5",
     "cross-env": "^7.0.3",
+    "express": "^5.1.0",
     "form-data": "^4.0.2",
     "graphql": "^16.8.1",
     "next": "15.3.0",
@@ -34,13 +38,17 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
     "@types/node": "^22.5.4",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.2",
     "@types/ssh2-sftp-client": "^9.0.4",
+    "concurrently": "^9.1.2",
     "eslint": "^9.16.0",
     "eslint-config-next": "15.3.0",
     "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
     "typescript": "5.7.3"
   },
   "engines": {

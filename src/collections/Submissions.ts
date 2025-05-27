@@ -33,27 +33,14 @@ const notifyPufferPanel = async ({ doc, previousDoc, req }: any) => {
       const tempPath = path.join('/tmp', fileName)
       await fs.writeFile(tempPath, Buffer.from(arrayBuffer))
 
-      // SFTP upload - backend only, apart gezet zodat het niet door Next.js/Webpack wordt gebundeld
-      async function uploadModViaSftp(arrayBuffer: ArrayBuffer, fileName: string) {
-        const SftpClient = (await import('ssh2-sftp-client')).default as typeof import('ssh2-sftp-client')
-        const sftp = new SftpClient()
-        try {
-          await sftp.connect({
-            host: 'panel.mirovaassen.nl',
-            port: 5657,
-            username: 'server@gmail.com|5e8c8989',
-            password: 'Vissen2102',
-          })
-          await sftp.put(Buffer.from(arrayBuffer), `/mods/${fileName}`)
-          console.log('SFTP upload succesvol:', `/mods/${fileName}`)
-        } finally {
-          await sftp.end()
-        }
-      }
-
-      // SFTP upload alleen in backend context
+      // SFTP upload via external Node.js server
       if (typeof window === 'undefined') {
-        await uploadModViaSftp(arrayBuffer, fileName)
+        const res = await fetch(`${process.env.SFTP_SERVER_URL || 'http://localhost:4001'}/sftp-upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ arrayBuffer: Buffer.from(arrayBuffer), fileName }),
+        })
+        if (!res.ok) throw new Error(await res.text())
       }
       await fs.unlink(tempPath)
     } catch (e: any) {
