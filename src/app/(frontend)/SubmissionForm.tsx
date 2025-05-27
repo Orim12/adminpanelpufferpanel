@@ -1,8 +1,5 @@
 "use client"
 import React, { useState, useRef, FormEvent } from 'react'
-
-
-const url = "https://submit.mirovaassen.nl/"
 interface Props {
   userId: string
 }
@@ -22,7 +19,7 @@ const SubmissionForm: React.FC<Props> = ({ userId }) => {
     if (link) formData.append('link', link)
     if (file) formData.append('file', file)
     formData.append('user', userId)
-    const res = await fetch(url+'api/submissions', {
+    const res = await fetch('api/submissions', {
       method: 'POST',
       body: formData,
     })
