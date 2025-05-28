@@ -2,6 +2,10 @@ import type { CollectionConfig } from 'payload'
 import fetch from 'node-fetch';
 import path from 'path'
 import fs from 'fs/promises'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 async function reloadserver(){
 const url = 'https://panel.mirovaassen.nl/api/client/servers/3b761456/power';
@@ -32,8 +36,8 @@ async function uploadFileToSftp({ doc, req }) {
     if (!mediaDoc?.filename) return
     const filePath = path.join(process.cwd(), 'media', mediaDoc.filename)
     const fileBuffer = await fs.readFile(filePath)
-    // Dynamisch importeren met absoluut pad zodat Webpack deze code niet bundelt
-    const modPath = path.join(process.cwd(), 'sftp', 'uploadMod.cjs')
+    // Gebruik __dirname zodat het pad altijd klopt, ook in Next.js/Payload
+    const modPath = path.join(__dirname, '../../sftp/uploadMod.cjs')
     const uploadMod = await import(modPath)
     await uploadMod.uploadModViaSftp(fileBuffer, mediaDoc.filename)
   } catch (e) {
