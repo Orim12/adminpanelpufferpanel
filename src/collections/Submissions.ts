@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import fetch from 'node-fetch';
+import path from 'path'
+import fs from 'fs/promises'
 
 async function reloadserver(){
 const url = 'https://panel.mirovaassen.nl/api/client/servers/3b761456/power';
@@ -20,13 +22,35 @@ try {
   console.error(error);
 }
 }
+
+async function uploadFileToSftp({ doc, req }) {
+  // Haal het media document op (file veld is een id of object)
+  const fileId = doc.file && typeof doc.file === 'object' ? doc.file.id || doc.file._id : doc.file
+  if (!fileId) return
+  // Haal media info op via Payload API
+  const mediaDoc = await req.payload.findByID({ collection: 'media', id: fileId })
+  if (!mediaDoc?.filename) return
+  // Bestandslocatie bepalen (Payload default: /media/<filename>)
+  const filePath = path.join(process.cwd(), 'media', mediaDoc.filename)
+  const fileBuffer = await fs.readFile(filePath)
+  // Dynamisch importeren zodat het alleen op de server werkt
+  const uploadModViaSftp = (await import('../../sftp/uploadMod.cjs')).uploadModViaSftp
+  // Uploaden via SFTP
+  await uploadModViaSftp(fileBuffer, mediaDoc.filename)
+}
+
 export const Submissions: CollectionConfig = {
   slug: 'submissions',
   admin: {
     useAsTitle: 'name',
   },
   hooks: {
-    afterChange: [reloadserver],
+    afterChange: [
+      async (args) => {
+        await uploadFileToSftp(args)
+        await reloadserver()
+      }
+    ],
   },
   access: {
     read: ({ req: { user } }) => {
