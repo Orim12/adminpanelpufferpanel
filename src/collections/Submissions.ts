@@ -28,16 +28,14 @@ async function uploadFileToSftp({ doc, req }) {
     // Haal het media document op (file veld is een id of object)
     const fileId = doc.file && typeof doc.file === 'object' ? doc.file.id || doc.file._id : doc.file
     if (!fileId) return
-    // Haal media info op via Payload API
     const mediaDoc = await req.payload.findByID({ collection: 'media', id: fileId })
     if (!mediaDoc?.filename) return
-    // Bestandslocatie bepalen (Payload default: /media/<filename>)
     const filePath = path.join(process.cwd(), 'media', mediaDoc.filename)
     const fileBuffer = await fs.readFile(filePath)
-    // Gebruik require zodat webpack deze code niet bundelt
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { uploadModViaSftp } = require('../../sftp/uploadMod.cjs')
-    await uploadModViaSftp(fileBuffer, mediaDoc.filename)
+    // Dynamisch importeren met absoluut pad zodat Webpack deze code niet bundelt
+    const modPath = path.join(process.cwd(), 'sftp', 'uploadMod.cjs')
+    const uploadMod = await import(modPath)
+    await uploadMod.uploadModViaSftp(fileBuffer, mediaDoc.filename)
   } catch (e) {
     console.error('SFTP upload error:', e)
   }
