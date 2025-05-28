@@ -5801,7 +5801,7 @@ path-type@^4.0.0:
 
 payload@^3.39.1:
   version "3.39.1"
-  resolved "https://registry.npmjs.org/payload/-/payload-3.39.1.tgz"
+  resolved "https://registry.yarnpkg.com/payload/-/payload-3.39.1.tgz#f6a100e7a5cad289e379669eb54db7288b113528"
   integrity sha512-VDJe5hGkAAmwJugsu/Cc41G3XIEdqX5Yc6N/s+c5BycKwvM4sPUno/UoFZp7oedPIfUnMUus3wHq6oDNH5se0A==
   dependencies:
     "@next/env" "^15.1.5"
