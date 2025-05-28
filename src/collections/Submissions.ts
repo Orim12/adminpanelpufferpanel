@@ -6,7 +6,7 @@ const url = 'https://panel.mirovaassen.nl/api/client/servers/3b761456/power';
 const options = {
   method: 'POST',
   headers: {
-    authorization: 'Bearer ptlc_RWd2kXMBariMwZ4nT0tNljoDjHnBHZR9ErynAsr5WPt',
+    authorization: 'Bearer ' + process.env.PANEL_API_KEY,
     'content-type': 'application/json'
   },
   body: '{"signal":"restart"}'
