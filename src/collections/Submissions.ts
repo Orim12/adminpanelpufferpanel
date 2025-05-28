@@ -27,21 +27,78 @@ try {
 }
 }
 
-async function uploadFileToSftp({ doc, req }) {
-  try {
-    // Haal het media document op (file veld is een id of object)
-    const fileId = doc.file && typeof doc.file === 'object' ? doc.file.id || doc.file._id : doc.file
-    if (!fileId) return
-    const mediaDoc = await req.payload.findByID({ collection: 'media', id: fileId })
-    if (!mediaDoc?.filename) return
-    const filePath = path.join(process.cwd(), 'media', mediaDoc.filename)
-    const fileBuffer = await fs.readFile(filePath)
-    // Gebruik __dirname zodat het pad altijd klopt, ook in Next.js/Payload
-    const modPath = path.join(__dirname, '../../sftp/uploadMod.cjs')
-    const uploadMod = await import(modPath)
-    await uploadMod.uploadModViaSftp(fileBuffer, mediaDoc.filename)
-  } catch (e) {
-    console.error('SFTP upload error:', e)
+type UploadFileToSftpArgs = {
+  doc: Record<string, unknown>;
+  previousDoc?: Record<string, unknown>;
+  req: {
+    payload?: any;
+  };
+};
+
+async function uploadFileToSftp({ doc, previousDoc, req }: UploadFileToSftpArgs): Promise<void> {
+  if ((doc as any).status === 'approved' && (previousDoc as any)?.status !== 'approved') {
+    try {
+      let fileUrl: string | null = null;
+      let fileName = `${(doc as any).name || 'mod'}-${(doc as any).id}.jar`;
+      if ((doc as any).file && typeof (doc as any).file === 'object' && (doc as any).file.url) {
+        fileUrl = (doc as any).file.url;
+        if ((doc as any).file.filename) fileName = (doc as any).file.filename;
+      } else if ((doc as any).file && typeof (doc as any).file === 'string') {
+        // Zorg dat de URL altijd met http(s):// begint
+        let base = process.env.PAYLOAD_PUBLIC_URL || 'http://localhost:3000';
+        if (!/^https?:\/\//i.test(base)) {
+          base = 'https://' + base.replace(/^\/*/, '');
+        }
+        const mediaRes = await (globalThis.fetch || (await import('node-fetch')).default)(`${base.replace(/\/$/, '')}/api/media/${(doc as any).file}`);
+        const media = await mediaRes.json();
+        fileUrl = media.url;
+        if (media.filename) fileName = media.filename;
+      }
+      if (!fileUrl) throw new Error('Geen geldig .jar bestand gevonden bij deze submission.');
+      console.log('PufferPanel: Gebruik fileUrl:', fileUrl, 'fileName:', fileName);
+
+      // Zorg dat fileUrl absoluut is
+      if (fileUrl && fileUrl.startsWith('/')) {
+        const base = process.env.PAYLOAD_PUBLIC_URL || 'http://localhost:3000';
+        fileUrl = base.replace(/\/$/, '') + fileUrl;
+      }
+      // Download het bestand naar een tijdelijke locatie
+      const fetchImpl = globalThis.fetch || (await import('node-fetch')).default;
+      const fileRes = await fetchImpl(fileUrl);
+      if (!fileRes.ok) throw new Error('Download van .jar bestand mislukt.');
+      const arrayBuffer = await fileRes.arrayBuffer();
+      const tempPath = path.join('/tmp', fileName);
+      await fs.writeFile(tempPath, Buffer.from(arrayBuffer));
+
+      // SFTP upload via external Node.js server
+      if (typeof window === 'undefined') {
+        const res = await fetch(`${process.env.SFTP_SERVER_URL || 'http://localhost:4001'}/sftp-upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ arrayBuffer: Buffer.from(arrayBuffer), fileName }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+      }
+      await fs.unlink(tempPath);
+    } catch (e: unknown) {
+      console.error('PufferPanel mod deploy/restart failed:', e);
+      // Probeer adminComment te updaten met foutmelding
+      if (doc && req && req.payload) {
+        try {
+          const errorMessage = e instanceof Error ? e.message : String(e);
+          await req.payload.update({
+            collection: 'submissions',
+            id: (doc as any).id,
+            data: {
+              adminComment: `PufferPanel fout: ${errorMessage}`,
+              status: 'pending',
+            },
+          });
+        } catch (updateErr) {
+          console.error('Kon adminComment niet bijwerken:', updateErr);
+        }
+      }
+    }
   }
 }
 
