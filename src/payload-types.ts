@@ -121,7 +121,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
-  role: 'user' | 'admin';
+  role?: ('user' | 'admin') | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -159,11 +159,24 @@ export interface Media {
 export interface Submission {
   id: string;
   name: string;
-  file?: (string | null) | Media;
-  link?: string | null;
+  file: string | Media;
+  link: string;
   user: string | User;
   status: 'pending' | 'approved' | 'rejected';
   adminComment?: string | null;
+  votes?:
+    | {
+        user: string | User;
+        id?: string | null;
+      }[]
+    | null;
+  votesAgainst?:
+    | {
+        user: string | User;
+        id?: string | null;
+      }[]
+    | null;
+  votingClosed?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -273,6 +286,19 @@ export interface SubmissionsSelect<T extends boolean = true> {
   user?: T;
   status?: T;
   adminComment?: T;
+  votes?:
+    | T
+    | {
+        user?: T;
+        id?: T;
+      };
+  votesAgainst?:
+    | T
+    | {
+        user?: T;
+        id?: T;
+      };
+  votingClosed?: T;
   updatedAt?: T;
   createdAt?: T;
 }

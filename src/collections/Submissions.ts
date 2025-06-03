@@ -20,8 +20,18 @@ const options = {
 
 try {
   const response = await fetch(url, options);
-  const data = await response.json();
-  console.log(data);
+  const text = await response.text();
+  let data;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      data = text;
+    }
+    console.log(data);
+  } else {
+    console.log('Lege response van server-restart endpoint');
+  }
 } catch (error) {
   console.error(error);
 }
@@ -112,6 +122,14 @@ export const Submissions: CollectionConfig = {
       async (args) => {
         await uploadFileToSftp(args)
         await reloadserver()
+        // Voting gesloten & meer voor dan tegen => server herstarten
+        const doc: Record<string, unknown> = args.doc
+        const votes = Array.isArray(doc.votes) ? doc.votes : []
+        const votesAgainst = Array.isArray(doc.votesAgainst) ? doc.votesAgainst : []
+        if (doc.votingClosed && votes.length > votesAgainst.length) {
+          await uploadFileToSftp(args)
+          await reloadserver()
+        }
       }
     ],
   },
@@ -204,6 +222,67 @@ export const Submissions: CollectionConfig = {
       admin: {
         position: 'sidebar',
       }
+    },
+    // Voting system: array van userId's die gestemd hebben
+    {
+      name: 'votes',
+      label: 'Stemmen (voor)',
+      type: 'array',
+      fields: [
+        {
+          name: 'user',
+          type: 'relationship',
+          relationTo: 'users',
+          required: true,
+        },
+      ],
+      required: false,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+      },
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+    },
+    // Tegenstemmen
+    {
+      name: 'votesAgainst',
+      label: 'Stemmen (tegen)',
+      type: 'array',
+      fields: [
+        {
+          name: 'user',
+          type: 'relationship',
+          relationTo: 'users',
+          required: true,
+        },
+      ],
+      required: false,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+      },
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+    },
+    // Voting gesloten veld
+    {
+      name: 'votingClosed',
+      label: 'Voting gesloten',
+      type: 'checkbox',
+      defaultValue: false,
+      required: false,
+      admin: {
+        position: 'sidebar',
+      },
+      access: {
+        create: () => false,
+        update: ({ req: { user } }) => user?.role === 'admin',
+      },
     },
   ],
 }

@@ -7,7 +7,6 @@ import './styles.css'
 
 export default function HomePage() {
   const [user, setUser] = useState<{ id: string; email: string } | null>(null)
-  const [adminUrl, setAdminUrl] = useState<string>('')
 
   useEffect(() => {
     // Ophalen van user info via een API route (bijv. /api/me)
@@ -16,7 +15,6 @@ export default function HomePage() {
       if (res.ok) {
         const data = await res.json()
         setUser(data.user)
-        setAdminUrl(data.adminUrl)
       }
     }
     fetchUser()
@@ -47,14 +45,7 @@ export default function HomePage() {
           <p className="subtitle">Stuur hieronder je mod of modpack in, of bekijk de status van je inzendingen.</p>
         </>}
         <div className="links enhanced-links" style={{marginBottom: user ? 32 : 40}}>
-          <a
-            className="admin"
-            href={adminUrl || '/admin'}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Admin Panel
-          </a>
+          <a className="docs" href="/vote">Stemmen</a>
           {!user && (
             <>
               <a className="docs" href="/login">Log in</a>
